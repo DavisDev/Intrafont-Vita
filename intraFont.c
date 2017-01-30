@@ -468,8 +468,12 @@ intraFont* intraFontLoad(const char *filename, unsigned int options) {
     font->shadowColor = 0xFF000000;  //non-transparent black
 	font->altFont = NULL;            //no alternative font
 	font->filename = (char*)malloc((strlen(filename)+1)*sizeof(char));
-	font->texture = vita2d_create_empty_texture_format(font->texWidth, font->texHeight, SCE_GXM_TEXTURE_FORMAT_U8_111R);
+	font->texture = vita2d_create_empty_texture_format(font->texWidth, font->texHeight, SCE_GXM_TEXTURE_FORMAT_U8_R111);
+	vita2d_texture_set_filters(font->texture,
+				   SCE_GXM_TEXTURE_FILTER_POINT,
+				   SCE_GXM_TEXTURE_FILTER_LINEAR);
 	font->texture_data = (unsigned char*)vita2d_texture_get_datap(font->texture);//memalign(16,font->texWidth*font->texHeight>>1);
+	//memset(font->texture_data,0,font->texWidth*font->texHeight*1);
 	if (!font->filename || !font->texture_data) {
 		fclose(file);
         free((void*)input_free);
@@ -1149,8 +1153,8 @@ float intraFontPrintColumnUCS2Ex(intraFont *font, float x, float y, float column
 						top + height - glyph->top *glyphscale,
 						glyph->x-0.25f,
 						glyph->y-0.25f,
-						glyph->width,
-						glyph->height,
+						((glyph->x + glyph->width)+0.25f)-(glyph->x-0.25f),
+						((glyph->y + glyph->height)+0.25f)-(glyph->y-0.25f),
 						glyphscale,
 						glyphscale,
 						color);
